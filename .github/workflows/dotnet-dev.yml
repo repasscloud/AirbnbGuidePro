@@ -1,0 +1,49 @@
+# This workflow will build a .NET project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+
+name: .NET (dev)
+
+on:
+  pull_request:
+    branches: [ "dev" ]
+jobs:
+  build:
+    strategy:
+      matrix:
+        dotnet-version: [6.0.x, 7.0.x, 8.0.x]
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🛒 Checkout
+        uses: actions/checkout@v3
+      - name: 🚀 Set up .NET Core
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ matrix.dotnet-version }}
+      - name: 🧶 Restore dependencies
+        run: dotnet restore
+      - name: 🏗️ Build
+        run: dotnet build --no-restore
+      - name: 🧪 Test
+        run: dotnet test --no-build --verbosity normal
+  auto-pr:
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Create pull request
+        run: gh pr create -B main -H dev --title 'Auto PR dev into main' --body 'Automatically created by gh-actions.'
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+  auto-merge:
+    needs: [ "auto-pr" ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: merge pull request
+        run: gh pr merge --merge
+        env:
+          GH_TOKEN: ${{ github.token }}
