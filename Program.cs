@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
-using AirbnbGuidePro.Data;
+﻿using Auth0.AspNetCore.Authentication;
 
 namespace AirbnbGuidePro;
 
@@ -10,10 +8,16 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
+        builder.Services
+            .AddAuth0WebAppAuthentication(options =>
+            {
+                options.Domain = builder.Configuration["Auth0:Domain"]!;
+                options.ClientId = builder.Configuration["Auth0:ClientId"]!;
+            });
+
         // Add services to the container.
         builder.Services.AddRazorPages();
         builder.Services.AddServerSideBlazor();
-        builder.Services.AddSingleton<WeatherForecastService>();
 
         var app = builder.Build();
 
@@ -23,10 +27,14 @@ public class Program
             app.UseExceptionHandler("/Error");
         }
 
+        app.UseHttpsRedirection();
 
         app.UseStaticFiles();
 
         app.UseRouting();
+
+        app.UseAuthentication();
+        app.UseAuthorization();
 
         app.MapBlazorHub();
         app.MapFallbackToPage("/_Host");

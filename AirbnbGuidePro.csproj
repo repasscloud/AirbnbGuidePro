@@ -10,9 +10,18 @@
   <ItemGroup>
     <Content Remove="wwwroot\images\" />
     <Content Remove="wwwroot\images\logo\" />
+    <Content Remove="wwwroot\css\bootstrap\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="wwwroot\images\" />
     <Folder Include="wwwroot\images\logo\" />
+    <Folder Include="Data\" />
+    <Folder Include="wwwroot\css\bootstrap\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Auth0.AspNetCore.Authentication" Version="1.3.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Data\" />
   </ItemGroup>
 </Project>
