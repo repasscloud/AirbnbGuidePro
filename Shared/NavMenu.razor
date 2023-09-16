@@ -1,6 +1,6 @@
 ﻿<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">
+        <a class="navbar-brand" href="/">
             <img src="/images/logo/AirbnbGuideProLogo.png" height="40" alt="Airbnb Guide Pro Logo" />
             Airbnb Guide Pro
         </a>
@@ -10,28 +10,41 @@
     </div>
 </div>
 
-<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
     <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="oi oi-plus" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="fetchdata">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
-            </NavLink>
-        </div>
+        @if (showLogin)
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="https://localhost:5016/login?redirectUri=/">
+                    <span class="oi oi-key" aria-hidden="true"></span> Login
+                </NavLink>
+            </div>
+        }
+        else
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                    <span class="oi oi-home" aria-hidden="true"></span> Home
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="supportRequests">
+                    <span class="oi oi-book" aria-hidden="true"></span> Support Requests
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="https://localhost:5016/logout">
+                    <span class="oi oi-account-logout" aria-hidden="true"></span> Logout
+                </NavLink>
+            </div>
+        }
     </nav>
 </div>
 
 @code {
     private bool collapseNavMenu = true;
+
+    private bool showLogin = true;
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
@@ -39,5 +52,21 @@
     {
         collapseNavMenu = !collapseNavMenu;
     }
-}
 
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationState { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        if (authenticationState is not null)
+        {
+            var state = await authenticationState;
+
+
+            if (!string.IsNullOrEmpty(state?.User?.Identity?.Name))
+            {
+                showLogin = false;
+            }
+        }
+        await base.OnInitializedAsync();
+    }
+}
